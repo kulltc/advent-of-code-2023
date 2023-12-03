@@ -1,7 +1,10 @@
 import re, inflect
-map = {**{inflect.engine().number_to_words(i): i for i in range(1, 10)}, **{str(i): i for i in range(1, 10)}}
+mapPart1 = {str(i): i for i in range(1, 10)}
+mapPart2 = {**mapPart1, **{inflect.engine().number_to_words(i): i for i in range(1, 10)}}
 
-def find_number(string, dir):
+def find_number(string, dir, map):
     return map[re.findall(re.compile(f"({('|'.join(map.keys())[::dir])})"), string[::dir])[0][::dir]]
 
-print(sum((find_number(line, 1) * 10 + find_number(line, -1) for line in open('day_1_input.csv'))))
+day1 = lambda map, lines : sum((find_number(line, 1, map) * 10 + find_number(line, -1, map) for line in lines))
+print(day1(mapPart1, open('day_1_input.csv').readlines()))
+print(day1(mapPart2, open('day_1_input.csv').readlines()))
