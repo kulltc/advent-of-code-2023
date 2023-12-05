@@ -3,8 +3,6 @@ from itertools import chain
 import time
 start = time.time()
 
-### -- Parsing input --- ###
-
 maps = []
 from_to = {}
 f = open('day_5_input.txt')
@@ -19,7 +17,13 @@ for line in f:
         from_to[mapFrom] = mapTo
     else:
         destinationStart, sourceStart, length = re.match(r'(\d+) (\d+) (\d+)', line).groups()
-        maps.append({'from':mapFrom, 'to': mapTo, 'destination_start': int(destinationStart), 'source_start': int(sourceStart), 'length': int(length)})
+        maps.append({
+            'from':mapFrom,
+            'to': mapTo,
+            'destination_start': int(destinationStart),
+            'source_start': int(sourceStart),
+            'length': int(length)
+        })
 
 df = pd.DataFrame(maps)
 df['source_end'] = df.source_start + df.length - 1
@@ -49,22 +53,19 @@ def getLocations(initialRange, initialType):
         locations += getLocations(range, from_to[type])
     return locations
 
-#Part 1
-locations = []
-for seed in  [{'min': int(seed), 'max': int(seed)} for seed in re.findall('(\d+)', seedLine)]:
-    locations += getLocations(seed, 'seed')
-locations1 = sorted(locations, key= lambda v: v['min'], reverse=False)
+def run(seeds):
+    locations = []
+    for seed in seeds:
+        locations += getLocations(seed, 'seed')
+    print(sorted(locations, key= lambda v: v['min'], reverse=False)[0])
 
+#Part 1
+run([{'min': int(seed), 'max': int(seed)} for seed in re.findall('(\d+)', seedLine)])
 end1 = time.time()
 print('part 1', end1 - start)
 
-
-# Part 2
-locations = []
-for seed in  [{'min': int(min), 'max': int(min) + int(count)} for (min, count) in re.findall('(\d+) (\d+)', seedLine)]:
-    locations += getLocations(seed, 'seed')
-locations2 = sorted(locations, key= lambda v: v['min'], reverse=False)
-
+#Part 2
+start = time.time()
+run([{'min': int(min), 'max': int(min) + int(count)} for (min, count) in re.findall('(\d+) (\d+)', seedLine)])
 end2 = time.time()
 print('part 2', end2 - start)
-print(locations1[0]['min'], locations2[0]['min'])
