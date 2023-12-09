@@ -1,4 +1,4 @@
-import re, math
+import re
 results = {'part1': {}, 'part2':{}}
 for cardIndex, line in enumerate(open('day_4_input.txt').readlines()):
     cardNumber, winningString, yourString = re.match(r"Card\s+(\d+)\:([\d\s]*)\|([\d\s]*?)\n?$", line).groups()
