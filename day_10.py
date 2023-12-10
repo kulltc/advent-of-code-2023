@@ -48,20 +48,20 @@ def get_tiles_in_loop(path):
     for index, row in enumerate(path_matrix):
         row = sorted(row, key=lambda tile: tile['x'])
         prev_x = 0
-        inside = False
-        semi = None
+        currently_inside = False
+        part1 = None
         for tile in row:
             char = map[f"{tile['x']},{index}"]
-            if inside:
+            if currently_inside:
                 count += tile['x'] - prev_x - 1
             if char in pipe_crossing:
-                inside = not inside
-            elif semi is None and char in two_part_pipe_crossing:
-                semi = char
-            elif semi is not None and char in two_part_pipe_crossing.values():
-                if char == two_part_pipe_crossing[semi]:
-                    inside = not inside
-                semi = None
+                currently_inside = not currently_inside
+            elif part1 is None and char in two_part_pipe_crossing:
+                part1 = char
+            elif part1 is not None and char in two_part_pipe_crossing.values():
+                if char == two_part_pipe_crossing[part1]:
+                    currently_inside = not currently_inside
+                part1 = None
             prev_x = tile['x']
     return count
 
