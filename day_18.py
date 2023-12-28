@@ -7,44 +7,53 @@ DIRMAP = {
     'L': LEFT,
     'R': RIGHT 
 }
+HEXDIRMAP = ['R', 'D', 'L', 'U']
 X, Y = 0, 1
 loc = (0,0)
-coords = {"0,0":"U"}
+coords = {0: {0: 'R'}}
 
 for instr in [instr.strip() for instr in open('day_18_input.txt') if instr.strip() != '']:
-    dir, len, hex = re.match(r"(\w) (\d+) (.*)", instr).groups()
-    for i in range(int(len)):
-        if (dir == 'U'):
-            coords[f"{loc[X]},{loc[Y]}"] = '*'
-        loc = (loc[X] + DIRMAP[dir][X], loc[Y] + DIRMAP[dir][Y]) 
-        if (dir == 'D'):
-            coords[f"{loc[X]},{loc[Y]}"] = '*'
-        else:
-            coords[f"{loc[X]},{loc[Y]}"] = dir
+    dir, len, hex = re.match(r"(\w) (\d+) \(\#(.*)\)", instr).groups()
 
-min_x = min([int(c.split(',')[X]) for c in coords.keys()])
-min_y = min([int(c.split(',')[Y]) for c in coords.keys()])
-max_y = max([int(c.split(',')[Y]) for c in coords.keys()])
-max_x = max([int(c.split(',')[X]) for c in coords.keys()])
+    dir = HEXDIRMAP[int(hex[5:], 16)]
+    len = int(hex[:5], 16)
+    if (dir == 'U'):
+        coords[loc[Y]][loc[X]] = '*'
+    if len < 4:
+        for i in range(int(len)):  
+            loc = (loc[X] + DIRMAP[dir][X], loc[Y] + DIRMAP[dir][Y])
+            row = coords.get(loc[Y], {})
+            row[loc[X]] = dir
+            coords[loc[Y]] = row
+    else:
+        loc = (loc[X] + DIRMAP[dir][X], loc[Y] + DIRMAP[dir][Y])
+        row = coords.get(loc[Y], {})
+        row[loc[X]] = dir
+        coords[loc[Y]] = row
+    if (dir == 'D'):
+        row[loc[X]] = '*'   
+
+min_x = min([min(row.keys()) for row in coords.values()])
+max_x = max([max(row.keys()) for row in coords.values()])
+min_y = min(coords.keys())
+max_y = max(coords.keys())
+
 offset_x = min(min_x, 0) * - 1
 offset_y = min(min_y, 0) * - 1
 
 sum = 0
 
-for y in range(min_y, max_y + 1):
+for y, row in sorted(coords.items()):
     inside = False
-    for x in range(min_x, max_x + 1):
-        key = f"{x},{y}"
-        if key in coords:
+    last_x = min_x
+    for x, type in sorted(row.items()):
+        if inside:
+            sum += x - last_x #exclude current edge
+        else:
+            sum += 1 #just count current edge
+        if type == '*':
+            inside = not inside
+        last_x = x
 
-            if coords[key] == '*':
-                inside = not inside
-            print(x,y)
-            sum += 1
-        elif inside:
-            print(x,y)
-            sum += 1
-
-
-print(sum, coords)
+print(sum)
 
